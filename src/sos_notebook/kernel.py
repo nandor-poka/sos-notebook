@@ -908,7 +908,7 @@ class SoS_Kernel(IPythonKernel):
         sys.stdout = save_stdout
         sys.stderr = save_stderr
 
-    def get_vars_from(self, items, from_kernel=None, explicit=False):
+    def get_vars_from(self, items, from_kernel=None, as_type=None, explicit=False):
         if from_kernel is None or from_kernel.lower() == 'sos':
             # Feature removed #253
             # autmatically get all variables with names start with 'sos'
@@ -961,7 +961,7 @@ class SoS_Kernel(IPythonKernel):
                 my_kernel = self.kernel
                 self.switch_kernel(from_kernel)
                 # put stuff to sos or my_kernel directly
-                self.put_vars_to(items, to_kernel=my_kernel, explicit=explicit)
+                self.put_vars_to(items, to_kernel=my_kernel, as_type=as_type, explicit=explicit)
             except Exception as e:
                 self.warn(
                     f'Failed to get {", ".join(items)} from {from_kernel}: {e}')
@@ -969,7 +969,7 @@ class SoS_Kernel(IPythonKernel):
                 # then switch back
                 self.switch_kernel(my_kernel)
 
-    def put_vars_to(self, items, to_kernel=None, explicit=False):
+    def put_vars_to(self, items, to_kernel=None, as_type=None, explicit=False):
         if self.kernel.lower() == 'sos':
             if to_kernel is None:
                 self.warn(
@@ -1006,10 +1006,11 @@ class SoS_Kernel(IPythonKernel):
                 if to_kernel:
                     objects = lan(self, kinfo.kernel).put_vars(
                         items,
-                        to_kernel=self.subkernels.find(to_kernel).language)
+                        to_kernel=self.subkernels.find(to_kernel).language,
+                        as_type=as_type)
                 else:
                     objects = lan(self, kinfo.kernel).put_vars(
-                        items, to_kernel='SoS')
+                        items, to_kernel='SoS', as_type=None)
             except Exception as e:
                 # if somethign goes wrong in the subkernel does not matter
                 env.log_to_file(
@@ -1054,7 +1055,7 @@ class SoS_Kernel(IPythonKernel):
                         env.sos_dict.pop(missing_var)
                     env.sos_dict.update(existing_vars)
             elif isinstance(objects, str):
-                # an statement that will be executed in the destination kernel
+                # a statement that will be executed in the destination kernel
                 if to_kernel is None or to_kernel == 'SoS':
                     # evaluate in SoS, this should not happen or rarely happen
                     # because the subkernel should return a dictionary for SoS kernel
