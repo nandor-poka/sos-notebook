@@ -227,6 +227,7 @@ class Subkernels(object):
             'version': 3
         },
         'r': 'r',
+        'R':'r',
         'report': 'markdown',
         'pandoc': 'markdown',
         'download': 'markdown',
@@ -244,6 +245,8 @@ class Subkernels(object):
         },
         'octave': 'octave',
         'matlab': 'octave',
+        'java': 'java',
+        'Java': 'java'
     }
 
     # now, no kernel is found, name has to be a new name and we need some definition
@@ -910,6 +913,7 @@ class SoS_Kernel(IPythonKernel):
 
     def get_vars_from(self, items, from_kernel=None, as_type=None, explicit=False):
         if from_kernel is None or from_kernel.lower() == 'sos':
+            
             # Feature removed #253
             # autmatically get all variables with names start with 'sos'
             # default_items = [
